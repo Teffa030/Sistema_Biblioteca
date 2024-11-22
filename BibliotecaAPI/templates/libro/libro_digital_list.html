@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de libros Digitales </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+ 
+</head>
+    <body class="d-flex flex-column align-items-center mt-2">
+
+      <nav class="navbar navbar-expand-lg bg-dark w-100" data-bs-theme="dark" fixed-bottom>
+        <div class="container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <a class="navbar-brand" href="{% url 'Index' %}">
+            <img src="{% static 'img/logo.png' %}" alt="Logo" width="50" height="40" class="d-inline-block align-text-top">
+            <font style="vertical-align: inherit;"><font style="vertical-align: inherit;"></font></font></a>
+          <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page"href="{% url 'Index' %}" >
+                <font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Inicio</font></font></a>
+              </li>
+              <li class="nav-item dropdown">
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle ms-3" style="vertical-align: inherit;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Forms
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'LibroFisicoCreate' %}">Libro Físico</a></li>
+                    <li><a class="dropdown-item" href="{% url 'LibroDigitalCreate' %}">Libro Digital</a></li>
+                  </ul>
+                </div>
+              </li>
+              
+              <li class="nav-item dropdown">
+                <div class="dropdown">
+                  <button class="btn btn-success dropdown-toggle ms-3" style="vertical-align: inherit;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Ver
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'LibroFisicoList' %}">Libro Físico</a></li>
+                    <li><a class="dropdown-item" href="{% url 'LibroDigitalList' %}">Libro Digital</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+
+
+      <div class="container position-absolute top-50 start-50 translate-middle">
+        <section class="container-fluid position-absolute top-50 start-50 translate-middle">
+          <h1>Libros Digital</h1>
+            <table class="table p-5 mt-5">
+                <thead>
+                    <tr>
+                        <th class="col border text-center">Codigo de libro</th>
+                        <th class="col border text-center">Titulo de libro</th>
+                        <th class="col border text-center">Autor de libro</th>
+                        <th class="col border text-center">Año de publicación</th>
+                        <th class="col border text-center">Tamaño mb</th>
+                        <th class="col border text-center">Formato</th>
+                        <th class="col border text-center">Acciones</th>
+                    </tr>
+                </thead>
+                {% for libro in libro %}
+                <tbody>
+                    <tr>
+                        <td class="border text-center">{{ libro.GetCodigoLibro }}</td>
+                        <td class="border text-center">{{ libro.GetTitulo }}</td>
+                        <td class="border text-center">{{ libro.GetAutor }}</td>
+                        <td class="border text-center">{{ libro.GetAnioPublicacion }}</td>
+                        <td class="border text-center">{{ libro.GetTamanomb }}</td>
+                        <td class="border text-center">{{ libro.GetFormato }}</td>
+                        <td class="d-flex gap-1 justify-content-center border">
+                            <a class="btn btn-primary" href="{% url 'LibroDigitalDetail' libro.pk %}">Ver detalles</a>
+                        </td>
+                    </tr>
+                </tbody>
+                {% endfor %}
+            </table>
+        </section>
+      </div>
+        
+        {% comment %} {% block content %}
+        {% endblock %} {% endcomment %}
+        <!-- Footer -->
+        <footer class="bg-dark text-white py-4 fixed-bottom">
+          <div class="container text-center">
+              <p class="mb-0">&copy; 2024 Tesoro de Papel. Todos los derechos reservados.</p>
+          </div>
+        </footer>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+    </html>
