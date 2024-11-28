@@ -1,20 +1,20 @@
-# urls.py (API)
-from django.urls import path
+from rest_framework import routers
+from django.urls import path, include  # Asegúrate de importar 'include'
 from . import views
+from .api import LibroFisicoViewSet, LibroDigitalViewSet
+
+# Registrar las vistas para la API
+router = routers.DefaultRouter()
+router.register('Fisico', LibroFisicoViewSet, 'Fisico')
+router.register('Digital', LibroDigitalViewSet, 'Digital')
 
 urlpatterns = [
     #url para LibroFisico
-    path('index/',views.index, name='Index'),
-    path('libro_fisico/', views.libro_fisico_list, name='LibroFisicoList'),
-    path('libro_fisico/<int:pk>/', views.libro_fisico_detail, name='LibroFisicoDetail'),
-    path('libro_fisico/add/', views.libro_fisico_create, name='LibroFisicoCreate'),
-    path('libro_fisico/<int:pk>/', views.libro_fisico_update, name='LibroFisicoUpdate'),
-    path('libro_fisico/<int:pk>/', views.libro_fisico_delete, name='LibroFisicoDelete'),
+    path('', views.index, name='Index'),
+    path('crear/', views.crear_libro, name='Create'),
+    path('listar/', views.list_libro, name='List'),
+    path('actualizar/<int:pk>/', views.update_libro, name='Update'),
+    path('eliminar/<int:pk>/', views.delete_libro, name='Delete'),
     
-    #url para LibroDigital
-    path('libro_digital/', views.libro_digital_list, name='LibroDigitalList'),
-    path('libro_digital/<int:pk>/', views.libro_digital_detail, name='LibroDigitalDetail'),
-    path('libro_digital/add/', views.libro_digital_create, name='LibroDigitalCreate'),
-    path('libro_digital/<int:pk>/', views.libro_digital_update, name='LibroDigitalUpdate'),
-    path('libro_digital/<int:pk>/', views.libro_digital_delete, name='LibroDigitalDelete'),
+    path('api/', include(router.urls))
 ]

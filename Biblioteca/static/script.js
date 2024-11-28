@@ -1,44 +1,56 @@
 fetch('http://127.0.0.1:8000/api/libros_fisicos/') // Cambia la URL según tu API
     .then(response => response.json())
     .then(data => {
-        const formContainer = document.getElementById('form-container');
 
-        // Aquí asumimos que "data" es el formulario recibido desde la API.
+        alert('Hola bb')
+        // Crear un contenedor para el formulario
+        const formContainer = document.createElement('div');
+        
+        // Generar el HTML del formulario dinámicamente (ejemplo básico)
         const formHTML = `
             <form id="addBookForm">
-                <div class="mb-3">
-                    <label for="title" class="form-label">Título</label>
-                    <input type="text" id="title" name="title" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="author" class="form-label">Autor</label>
-                    <input type="text" id="author" name="author" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="price" class="form-label">Precio</label>
-                    <input type="number" id="price" name="price" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Enviar</button>
+                {% csrf_token %}
+                <label for="codigoLibro">Codigo del Libro:</label>
+                <input type="number" id="title" name="codigoLibro" required/>
+
+                <label for="titulo">Título:</label>
+                <input type="text" id="title" name="titulo" required/>
+                
+                <label for="autor">Autor:</label>
+                <input type="text" id="autor" required/>
+                
+                <label for="aniopublicacion">Precio:</label>
+                <input type="data" id="aniopublicacion" required/>
+
+                <label for="numeropagina">Numero de paginas:</label>
+                <input type="number" id="numeropagina" required/>
+                
+                <button type="submit">Añadir Libro</button>
             </form>
         `;
 
-        // Renderizamos el formulario dentro del contenedor
+        // Agregar el formulario al contenedor
         formContainer.innerHTML = formHTML;
+        document.body.appendChild(formContainer); // Añadirlo al DOM
 
-        // Agregamos el evento de envío del formulario
+        // Capturar el formulario después de agregarlo al DOM
         const addBookForm = document.getElementById('addBookForm');
+
+        // Agregar el evento de envío
         addBookForm.addEventListener('submit', (event) => {
             event.preventDefault();
 
             // Capturar los datos del formulario
             const formData = {
-                title: document.getElementById('title').value,
-                author: document.getElementById('author').value,
-                price: document.getElementById('price').value
+                title: document.getElementById('codigoLibro').value,
+                author: document.getElementById('titulo').value,
+                price: document.getElementById('autor').value,
+                price: document.getElementById('aniopublicacion').value,
+                price: document.getElementById('numeropagina').value
             };
 
             // Enviar los datos a la API
-            fetch('http://127.0.0.1:8000/api/libros-fisicos/', {
+            fetch('http://127.0.0.1:8000/api/libros_fisicos/', { // Ajustar URL si es necesario
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -52,7 +64,9 @@ fetch('http://127.0.0.1:8000/api/libros_fisicos/') // Cambia la URL según tu AP
             })
             .catch(error => {
                 console.error('Error al añadir el libro:', error);
+                alert('Error al añadir el libro. Por favor, inténtalo de nuevo.');
             });
         });
     })
-    .catch(error => console.error('Error al cargar el formulario:', error));
+    .catch(error => console.error('Error al cargar los datos:', error));
+

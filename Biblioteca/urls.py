@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('BibliotecaAPI.urls')),  # Asegúrate de que el archivo urls.py existe en bibliotecaAPI
+    path('', include('BibliotecaAPI.urls')),  # Asegúrate de que el archivo urls.py existe en bibliotecaAPI
 ]

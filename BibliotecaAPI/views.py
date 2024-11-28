@@ -1,146 +1,120 @@
-import requests
-from django.shortcuts import render
-from django.shortcuts import redirect 
-from django.http import Http404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
+from .models import LibroFisico, LibroDigital
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .forms import LibroForm
 
-# Vista que consume la API y pasa datos al template de LIBRO FISICO
+# Vista principal que carga la página con el CRUD
 def index(request):
-    return render(request,'libro/index.html')
+    return render(request, 'libro/index.html')
 
-def libro_fisico_list(request):
-    api_url = 'http://127.0.0.1:8000/api/libro_fisico/'  # URL de tu API
-    response = requests.get(api_url)
-    libros = response.json() if response.status_code == 200 else []  # Datos desde la API
-    return render(request, 'libro/libro_fisico_list.html', {'libros': libros})
+# Vista para crear un evento (Concierto o Conferencia)
+def crear_libro(request):
+    if request.method == 'POST':
+        form = LibroForm(request.POST)
+        if form.is_valid():
+            codigoLibro = form.cleaned_data['codigoLibro']
+            titulo = form.cleaned_data['titulo']
+            autor = form.cleaned_data['autor']
+            anioPublicacion = form.cleaned_data['anioPublicacion']
+            tipo_libro = form.cleaned_data['tipo_libro']
 
-
-def libro_fisico_detail(request, pk):
-    api_url = f'http://127.0.0.1:8000/api/libro_fisico/{pk}/'  # Endpoint de detalle
-    response = requests.get(api_url)
-    if response.status_code == 200:  # Si la API devuelve un libro válido
-        libro = response.json()
+            # Crear el evento según el tipo seleccionado
+            if tipo_libro == 'fisico':
+                numeroPaginas = form.cleaned_data['numeroPaginas']
+                LibroFisico.objects.create(
+                    codigoLibro=codigoLibro, titulo=titulo, autor=autor,
+                    anioPublicacion=anioPublicacion, numeroPaginas=numeroPaginas
+                )
+            elif tipo_libro == 'digital':
+                tamanomb = form.cleaned_data['tamanomb']
+                formato = form.cleaned_data['formato']
+                LibroDigital.objects.create(
+                    codigoLibro=codigoLibro, titulo=titulo, autor=autor,
+                    anioPublicacion=anioPublicacion, tamanomb=tamanomb, formato=formato 
+                )
+            return redirect('list_libro')  # Redirigir después de guardar el evento
     else:
-        raise Http404("El libro físico no existe.")
-    return render(request, 'libro/libro_fisico_detail.html', {'libro': libro})
+        form = LibroForm()
 
+    return render(request, 'libro/index.html', {'form': form})
 
-def libro_fisico_create(request):
-    if request.method == 'POST':
-        api_url = 'http://127.0.0.1:8000/api/libro_fisico/add/'
-        data = {
-            'titulo': request.POST['titulo'],
-            'autor': request.POST['autor'],
-            'anioPublicacion': request.POST['anioPublicacion'],
-            'numeroPaginas':request.POST['numeroPaginas']
+# Vista para listar eventos (Conciertos y Conferencias)
+def list_libro(request):
+    # Obtener los conciertos y conferencias
+    Fisicos = LibroFisico.objects.all()
+    Digitales = LibroDigital.objects.all()
+
+    libros = []
+
+    # Agregar libro fisico a la lista de eventos
+    for Fisico in Fisicos:
+        libro = {
+            'tipo_libro': 'fisico',  # Se agrega el tipo de evento explícitamente
+            'codigoLibro': Fisico.codigoLibro,
+            'titulo': Fisico.titulo,
+            'autor': Fisico.autor,
+            'anioPublicacion': Fisico.anioPublicacion,
+            'numeroPaginas': Fisico.numeroPaginas
         }
-        response = requests.post(api_url, data=data)
-        if response.status_code == 201:  # Creación exitosa
-            return redirect('LibroFisicoList')
-    return render(request, 'libro/libro_fisico_form.html')
+        libros.append(libro)
 
-def libro_fisico_update(request, pk):
-    api_url = f'http://127.0.0.1:8000/api/libro_fisico/{pk}/'  # URL de la API para un libro específico
-
-    if request.method == 'POST':
-        data = {
-            'titulo': request.POST['titulo'],
-            'autor': request.POST['autor'],
-            'anioPublicacion': request.POST['anioPublicacion'],
-            'numeroPaginas': request. POST['numeroPaginas']
+    # Agregar conferencias a la lista de eventos
+    for Digital in Digitales:
+        libro = {
+            'tipo_libro': 'digital',  # Se agrega el tipo de evento explícitamente
+            'codigoLibro': Digital.codigoLibro,
+            'titulo': Digital.titulo,
+            'autor': Digital.autor,
+            'anioPublicacion': Digital.anioPublicacion,
+            'tamanomb': Digital.tamanomb,
+            'formato': Digital.formato
         }
-        response = requests.put(api_url, data=data)  # Llamada a la API para actualizar
-        if response.status_code == 200:  # Actualización exitosa
-            return redirect('LibroFisicoList')
-    else:
-        response = requests.get(api_url)  # Obtener los datos del libro desde la API
-        if response.status_code == 200:
-            libro = response.json()
-        else:
-            libro = None  # Manejar caso en que no se encuentre el libro
+        libros.append(libro)
 
-    return render(request, 'libro/libro_fisico_form.html', {'libro': libro})
+    return JsonResponse(libros, safe=False)
 
-def libro_fisico_delete(request, pk):
-    api_url = f'http://127.0.0.1:8000/api/libro_fisico/{pk}/'
-    
-    if request.method == 'POST':
-        response = requests.delete(api_url)
-        if response.status_code == 204:  # Eliminación exitosa
-            return redirect('LibroFisicoList')
-    
-    # Obtener los datos del libro para confirmación antes de eliminar
-    response = requests.get(api_url)
-    libro = response.json() if response.status_code == 200 else None
+# Vista para actualizar un evento
+@csrf_exempt
+def update_libro(request, pk):
+    if request.method == 'PUT':
+        # Intentar obtener el evento como un Concierto o Conferencia
+        try:
+            libro = LibroFisico.objects.get(pk=pk)
+            libro_tipo = 'fisico'
+        except LibroFisico.DoesNotExist:
+            libro = get_object_or_404(LibroFisico, pk=pk)
+            libro_tipo = 'digital'
 
-    return render(request, 'libro/libro_fisico_delete.html', {'libro': libro})
+        data = json.loads(request.body)
 
-# Vista que consume la API y pasa datos al template de LIBRO DIGITAL
-def libro_digital_list(request):
-    api_url = 'http://127.0.0.1:8000/api/libro_digital/'  # URL de tu API
-    response = requests.get(api_url)
-    libros = response.json() if response.status_code == 200 else []  # Datos desde la API
-    return render(request, 'libro/libro_digital_list.html', {'libros': libros})
+        # Actualizar campos comunes
+        libro.codigoLibro = data.get('codigoLibro', libro.codigoLibro)
+        libro.titulo = data.get('titulo', libro.titulo)
+        libro.autor = data.get('autor', libro.autor)
+        libro.anioPublicacion = data.get('anioPublicacion', libro.anioPublicacion)
 
-def libro_digital_detail(request, pk):
-    api_url = f'http://127.0.0.1:8000/api/libro_fisico/{pk}/'  # Endpoint de detalle
-    response = requests.get(api_url)
-    if response.status_code == 200:  # Si la API devuelve un libro válido
-        libro = response.json()
-    else:
-        raise Http404("El libro físico no existe.")
-    return render(request, 'libro/libro_digital_detail.html', {'libro': libro})
+        # Actualizar campos específicos de libro físico o libro digital
+        if libro_tipo == 'fisico':
+            libro.numeroPaginas = data.get('numeroPaginas', libro.numeroPaginas)
+        else:  # Si es libro digital
+            libro.tamanomb = data.get('tamanomb', libro.tamanomb)
+            libro.formato = data.get('formato', libro.formato)
+
+        libro.save()
+
+        return JsonResponse({'message': 'Libro actualizado con éxito', 'libro': libro.codigoLibro})
 
 
-def libro_digital_create(request):
-    if request.method == 'POST':
-        api_url = 'http://127.0.0.1:8000/api/libro_digital/'
-        data = {
-            'titulo': request.POST['titulo'],
-            'autor': request.POST['autor'],
-            'anioPublicacion': request.POST['anioPublicacion'],
-            'tamnomb':request.POST['tamnomb'],
-            'formato':request.POST['formato']
-        }
-        response = requests.post(api_url, data=data)
-        if response.status_code == 201:  # Creación exitosa
-            return redirect('LibroDigitalList')
-    return render(request, 'libro/libro_digital_form.html')
-
-def libro_digital_update(request, pk):
-    api_url = f'http://127.0.0.1:8000/api/libro_digital/{pk}/'  # URL de la API para un libro específico
-
-    if request.method == 'POST':
-        data = {
-            'titulo': request.POST['titulo'],
-            'autor': request.POST['autor'],
-            'anioPublicacion': request.POST['anioPublicacion'],
-            'tamnomb':request.POST['tamnomb'],
-            'formato':request.POST['formato']
-        }
-        response = requests.put(api_url, data=data)  # Llamada a la API para actualizar
-        if response.status_code == 200:  # Actualización exitosa
-            return redirect('LibroDigitalList')
-    else:
-        response = requests.get(api_url)  # Obtener los datos del libro desde la API
-        if response.status_code == 200:
-            libro = response.json()
-        else:
-            libro = None  # Manejar caso en que no se encuentre el libro
-
-    return render(request, 'libro/libro_digital_form.html', {'libro': libro})
-
-def libro_digital_delete(request, pk):
-    api_url = f'http://127.0.0.1:8000/api/libro_digital/{pk}/'
-    
-    if request.method == 'POST':
-        response = requests.delete(api_url)
-        if response.status_code == 204:  # Eliminación exitosa
-            return redirect('LibroDigitalList')
-    
-    # Obtener los datos del libro para confirmación antes de eliminar
-    response = requests.get(api_url)
-    libro = response.json() if response.status_code == 200 else None
-
-    return render(request, 'libro/libro_digital_delete.html', {'libro': libro})
-
-
+# Vista para eliminar un libro
+@csrf_exempt
+def delete_libro(request, pk):
+    if request.method == 'DELETE':
+        # Intentar obtener el libro como un Libro Físico o Libro Digital
+        try:
+            libro = LibroFisico.objects.get(id=pk)
+        except LibroFisico.DoesNotExist:
+            libro = get_object_or_404(LibroDigital, id=pk)
+        libro.delete()
+        return JsonResponse({'message': 'Libro eliminado con éxito'})

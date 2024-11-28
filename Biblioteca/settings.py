@@ -39,8 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'BibliotecaAPI',
     'rest_framework',
+    'BibliotecaAPI',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +52,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5500",  # Ajusta según tu entorno de desarrollo
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    
 ]
 
 ROOT_URLCONF = 'Biblioteca.urls'
@@ -130,10 +139,11 @@ USE_TZ = True
 STATIC_URL = 'static/'
 #diferenrte forma de acceder a las imagenes o el archivo static
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "biblioteca", "static"), 
+    os.path.join(BASE_DIR, "Biblioteca", "static"), 
 ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
