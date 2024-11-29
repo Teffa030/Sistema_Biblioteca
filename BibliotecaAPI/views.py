@@ -82,10 +82,10 @@ def update_libro(request, pk):
         # Intentar obtener el evento como un Concierto o Conferencia
         try:
             libro = LibroFisico.objects.get(pk=pk)
-            libro_tipo = 'fisico'
+            tipo_libro = 'fisico'
         except LibroFisico.DoesNotExist:
-            libro = get_object_or_404(LibroFisico, pk=pk)
-            libro_tipo = 'digital'
+            libro = get_object_or_404(LibroDigital, pk=pk)
+            tipo_libro = 'digital'
 
         data = json.loads(request.body)
 
@@ -96,7 +96,7 @@ def update_libro(request, pk):
         libro.anioPublicacion = data.get('anioPublicacion', libro.anioPublicacion)
 
         # Actualizar campos específicos de libro físico o libro digital
-        if libro_tipo == 'fisico':
+        if tipo_libro == 'fisico':
             libro.numeroPaginas = data.get('numeroPaginas', libro.numeroPaginas)
         else:  # Si es libro digital
             libro.tamanomb = data.get('tamanomb', libro.tamanomb)

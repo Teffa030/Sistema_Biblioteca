@@ -122,7 +122,7 @@
           </div>
           <div class="form-group">
               <label for="aniopublicacion">Año de publicación</label>
-              <input type="text" class="form-control" id="anioPublicacion" required>
+              <input type="date" class="form-control" id="anioPublicacion" required>
           </div>
           <div class="form-group">
               <label for="tipo">Tipo de libro</label>
@@ -139,10 +139,11 @@
 
       <!-- Tablas para libro físico y libro digital -->
       <h2>Libro Físico</h2>
-      <table class="table table-bordered" id="tablalibrofisico">
+      <table class="table table-bordered" id="tablaFisico">
           <thead>
               <tr>
                   <th>Id</th>
+                  <th>Codigo libro</th>
                   <th>Titulo</th>
                   <th>Autor</th>
                   <th>Año Publicación</th>
@@ -156,10 +157,11 @@
       </table>
 
       <h2>Libro Digital</h2>
-      <table class="table table-bordered" id="tablalibrodigital">
+      <table class="table table-bordered" id="tablaDigital">
           <thead>
               <tr>
                   <th>Id</th>
+                  <th>Codigo libro</th>
                   <th>Titulo</th>
                   <th>Autor</th>
                   <th>Año Publicación</th>
@@ -174,39 +176,42 @@
       </table>
 
       <!-- Modal de Edición de libros -->
-      <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editarModalLabel" aria-hidden="true">
+      <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
               <div class="modal-content">
                   <div class="modal-header">
-                      <h5 class="modal-title" id="editModalLabel">Editar Libro</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                      </button>
+                      <h5 class="modal-title" id="exampleModalLabel">Editar Libro</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body">
-                      <form id="formEditLibro">
+                      <form id="formEditarLibro">
                           <input type="hidden" id="LibroId">
+                          <div class="form-group">
+                              <label for="codigoLibroEdit">Titulo del libro</label>
+                              <input type="text" class="form-control" id="codigoLibroEdit" required>
+                          </div>
                           <div class="form-group">
                               <label for="tituloEdit">Titulo del libro</label>
                               <input type="text" class="form-control" id="tituloEdit" required>
                           </div>
                           <div class="form-group">
                               <label for="autorEdit">Autor del libro</label>
-                              <input type="datetime-local" class="form-control" id="autorEdit" required>
+                              <input type="text" class="form-control" id="autorEdit" required>
                           </div>
                           <div class="form-group">
                               <label for="anioPublicacionEdit">Año Publicacion</label>
-                              <input type="text" class="form-control" id="anioPublicacionEdit" required>
+                              <input type="date" class="form-control" id="anioPublicacionEdit" required>
                           </div>
                           <div class="form-group">
                               <label for="tipoEdit">Tipo de libro</label>
                               <select class="form-control" id="tipoEdit">
-                                  <option value="librofisico">fisico</option>
-                                  <option value="librodigital">digital</option>
+                                  <option value="fisico">fisico</option>
+                                  <option value="digital">digital</option>
                               </select>
                           </div>
                           <div id="detalleLibroEdit"></div>
-                          <button type="submit" class="btn btn-primary">Actualizar Evento</button>
+                          <button type="submit" class="btn btn-primary"  data-bs-dismiss="modal">Actualizar libro</button>
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                       </form>
                   </div>
               </div>
@@ -214,21 +219,19 @@
       </div>
 
       <!-- Modal de Confirmación de Eliminación -->
-      <div class="modal fade" id="confirmarEliminacion" tabindex="-1" role="dialog" aria-labelledby="confirmarEliminacionLabel" aria-hidden="true">
+      <div class="modal fade" id="confirmarEliminacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
               <div class="modal-content">
                   <div class="modal-header">
-                      <h5 class="modal-title" id="confirmarEliminacionLabel">Confirmar Eliminación</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                      </button>
+                      <h5 class="modal-title" id="exampleModalLabel">Confirmar Eliminación</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body">
                       <p>¿Estás seguro de que deseas eliminar este libro?</p>
                   </div>
                   <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                      <button type="button" id="confirmarEliminarBtn" class="btn btn-danger">Eliminar</button>
+                      <button type="button" id="confirmarEliminarBtn" data-dismiss="modal" class="btn btn-danger">Eliminar</button>
                   </div>
               </div>
           </div>
@@ -245,15 +248,15 @@
               if (tipo === 'fisico') {
                   $(contenedor).html(`
                       <div class="form-group">
-                          <label for="numeroPagina${esEdicion ? 'Edit' : ''}">Número Página</label>
-                          <input type="text" class="form-control" id="numeroPagina${esEdicion ? 'Edit' : ''}" required>
+                          <label for="numeroPaginas${esEdicion ? 'Edit' : ''}">Número Página</label>
+                          <input type="number" class="form-control" id="numeroPaginas${esEdicion ? 'Edit' : ''}" required>
                       </div>   
                   `);
               } else if (tipo === 'digital') {
                   $(contenedor).html(`
                       <div class="form-group">
                           <label for="tamanomb${esEdicion ? 'Edit' : ''}">Tammaño MB</label>
-                          <input type="text" class="form-control" id="tamanomb${esEdicion ? 'Edit' : ''}" required>
+                          <input type="number" class="form-control" id="tamanomb${esEdicion ? 'Edit' : ''}" required>
                       </div>
                       <div class="form-group">
                           <label for="formato${esEdicion ? 'Edit' : ''}">Formato</label>
@@ -276,20 +279,18 @@
           $('#formCrearLibro').submit(function(book) {
               book.preventDefault();
               const libro = {
-                  codigolibro: $('#codigolibro').val(),
+                  codigoLibro: $('#codigolibro').val(),
                   titulo: $('#titulo').val(),
                   autor: $('#autor').val(),
                   anioPublicacion: $('#anioPublicacion').val(),
                   tipo: $('#tipo').val(),
-                  numeroPagina: $('#numeroPagina').val(),
+                  numeroPaginas: $('#numeroPaginas').val(),
                   tamanomb: $('#tamanomb').val(),
                   formato: $('#formato').val()
               };
 
-              console.log(libro);
             
               const url = libro.tipo === 'fisico' ? '/api/Fisico/' : '/api/Digital/';
-              console.log(url);
               
               // Enviar datos al backend
               $.ajax({
@@ -317,32 +318,33 @@
                   method: 'GET',
                   success: function(Fisicos) {
                       $('#tablaFisico tbody').empty();
-                      Fisicos.forEach(function(Fisico, index) {
+                      Fisicos.forEach(function(Fisico) {
                           $('#tablaFisico tbody').append(`
-                              <tr data-id="${index}">
+                              <tr data-id="${Fisico.id}">
+                                  <td>${Fisico.id}</td>
                                   <td>${Fisico.codigoLibro}</td>
                                   <td>${Fisico.titulo}</td>
                                   <td>${Fisico.autor}</td>
                                   <td>${Fisico.anioPublicacion}</td>
                                   <td>${Fisico.numeroPaginas}</td>
                                   <td>
-                                      <button class="btn btn-warning btn-editar" data-id="${index}">Editar</button>
-                                      <button class="btn btn-danger btn-eliminar" data-id="${index}">Eliminar</button>
+                                      <button class="btn btn-warning btn-editar" data-id="${Fisico.id}">Editar</button>
+                                      <button class="btn btn-danger btn-eliminar" data-id="${Fisico.id}">Eliminar</button>
                                   </td>
                               </tr>
                           `);
                       });
                   }
               });
-      
               $.ajax({
                   url: `/api/Digital/`,
                   method: 'GET',
                   success: function(Digitales) {
                       $('#tablaDigital tbody').empty();
-                      Digitales.forEach(function(Digital, index) {
+                      Digitales.forEach(function(Digital) {
                           $('#tablaDigital tbody').append(`
-                              <tr data-id="${index}">
+                              <tr data-id="${Digital.id}">
+                                  <td>${Digital.id}</td>
                                   <td>${Digital.codigoLibro}</td>
                                   <td>${Digital.titulo}</td>
                                   <td>${Digital.autor}</td>
@@ -350,8 +352,8 @@
                                   <td>${Digital.tamanomb}</td>
                                   <td>${Digital.formato}</td>
                                   <td>
-                                      <button class="btn btn-warning btn-editar" data-id="${index}">Editar</button>
-                                      <button class="btn btn-danger btn-eliminar" data-id="${index}">Eliminar</button>
+                                      <button class="btn btn-warning btn-editar" data-id="${Digital.id}">Editar</button>
+                                      <button class="btn btn-danger btn-eliminar" data-id="${Digital.id}">Eliminar</button>
                                   </td>
                               </tr>
                           `);
@@ -363,7 +365,7 @@
           // Eliminar evento
           $(document).on('click', '.btn-eliminar', function() {
               const id = $(this).data('id');
-              const tipo = $(this).closest('table').attr('id') === 'tablaFisico' ? 'Fisico' : 'Digital';
+              const tipo = $(this).closest('table').attr('id') === 'tablaFisico' ? 'fisico' : 'digital';
               $('#confirmarEliminacion').modal('show');
               $('#confirmarEliminarBtn').data('id', id).data('tipo', tipo);
           });
@@ -378,7 +380,7 @@
                   url: url,
                   method: 'DELETE',
                   success: function() {
-                      cargarEventos(); // Recargar libro después de eliminar
+                        cargarLibro(); // Recargar libro después de eliminar
                       $('#confirmarEliminacion').modal('hide');
                   },
                   error: function() {
@@ -390,24 +392,26 @@
           // Editar evento
           $(document).on('click', '.btn-editar', function() {
               const id = $(this).data('id');
-              const tipo = $(this).closest('table').attr('id') === 'tablaFisico' ? 'Fisico' : 'Digital';
+              const tipo = $(this).closest('table').attr('id') === 'tablaFisico' ? 'fisico' : 'digital';
       
               // Cargar el libro para editar
               $.ajax({
-                  url: tipo === 'fisico' ? `/api/Fisico/${index}/` : `/api/Digital/${index}/`,
+                  url: tipo === 'fisico' ? `/api/Fisico/${id}/` : `/api/Digital/${id}/`,
                   method: 'GET',
-                  success: function(libro) {
-                      libroIdActual = libro.codigoLibro;
-                      $('#tituloEdit').val(libro.titulo);
-                      $('#autorEdit').val(libro.autor);
-                      $('#anioPublicacionEdit').val(libro.autor);
-                      $('#tipoEdit').val(libro.tipo).change();
-                      $('#numeroPaginasEdit').val(libro.numeroPaginas || '');
-                      $('#tamanombEdit').val(libro.tamanomb || '');
-                      $('#formatoEdit').val(libro.formato || '');
-                      $('#editarModal').modal('show');
+                  success: function(libros) {
+                      libroIdActual = libros.id;
+                      $('#codigoLibroEdit').val(libros.codigoLibro);
+                      $('#tituloEdit').val(libros.titulo);
+                      $('#autorEdit').val(libros.autor);
+                      $('#anioPublicacionEdit').val(libros.anioPublicacion);
+                      $('#tipoEdit').val(libros.tipo).change();
+                      $('#numeroPaginasEdit').val(libros.numeroPaginas || '');
+                      $('#tamanombEdit').val(libros.tamanomb || '');
+                      $('#formatoEdit').val(libros.formato || '');
+                      $('#editModal').modal('show');
+                      console.log(libros.tipo)
                   }
-              });
+                });
         });
 
         // Actualizar libro
@@ -418,6 +422,7 @@
                 codigoLibro: $('#codigoLibroEdit').val(),
                 titulo: $('#tituloEdit').val(),
                 autor: $('#autorEdit').val(),
+                anioPublicacion: $('#anioPublicacionEdit').val(),
                 tipo: $('#tipoEdit').val(),
                 numeroPaginas: $('#numeroPaginasEdit').val(),
                 tamanomb: $('#tamanombEdit').val(),
@@ -430,7 +435,7 @@
             $.ajax({
                 url: url,
                 method: 'PUT',
-                data: JSON.stringify(evento),
+                data: JSON.stringify(libro),
                 contentType: 'application/json',
                 success: function(response) {
                     cargarLibro(); // Recargar libro después de actualizar uno
@@ -440,18 +445,20 @@
                     alert('Error al actualizar el libro');
                 }
             });
-        });
-
+        
+        
         // Inicializar carga de libro
-        cargarLibro();
+        
+    });
+    cargarLibro();
     </script>
 
 
-    <footer class="bg-dark text-white py-4 fixed-bottom">
+    {% comment %} <footer class="bg-dark text-white py-4 fixed-bottom">
       <div class="container text-center">
           <p class="mb-0">&copy; 2024 Tesoro de Papel. Todos los derechos reservados.</p>
       </div>
-    </footer>
+    </footer> {% endcomment %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
